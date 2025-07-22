@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm install)",
+      "Bash(mkdir:*)",
+      "WebFetch(domain:gs1.github.io)",
+      "WebFetch(domain:health.maryland.gov)",
+      "WebFetch(domain:www.gs1.org)"
+    ],
+    "deny": []
+  }
+}

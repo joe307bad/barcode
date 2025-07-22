@@ -1,0 +1,43 @@
+body {
+  font-family: Arial, sans-serif;
+  padding: 20px;
+}
+
+input {
+  width: 200px;
+  margin: 5px 0;
+  padding: 5px;
+}
+
+button {
+  padding: 10px 20px;
+  margin: 10px 0;
+}
+
+.barcode-container {
+  margin: 20px 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.barcode-item {
+  flex: 1;
+  min-width: 300px;
+  text-align: center;
+}
+
+.saved-values {
+  margin: 20px 0;
+}
+
+.saved-item {
+  cursor: pointer;
+  padding: 5px;
+  border: 1px solid #ccc;
+  margin: 2px 0;
+}
+
+.saved-item:hover {
+  background-color: #f0f0f0;
+}
