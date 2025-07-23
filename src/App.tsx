@@ -46,17 +46,17 @@ function App() {
     if (!ndc || ndc.trim() === '') {
       return '10300000000005'
     }
-    
+
     const cleanNdc = ndc.replace(/[-]/g, '').replace(/\s/g, '')
-    
+
     // Ensure we have exactly 10 digits for NDC
     if (cleanNdc.length !== 10 || !/^\d{10}$/.test(cleanNdc)) {
       return '10300000000005'
     }
-    
+
     // Step 1: Create 13 digits: "103" + 10-digit NDC
     const digits13 = '103' + cleanNdc
-    
+
     // Step 2: Calculate GTIN-14 check digit (treating 13 digits as GTIN-14 without check)
     let sum = 0
     // GTIN-14 algorithm: multiply by 3,1,3,1,3,1... from LEFT to RIGHT
@@ -65,13 +65,13 @@ function App() {
       const multiplier = (i % 2 === 0) ? 3 : 1
       sum += digit * multiplier
     }
-    
+
     const remainder = sum % 10
     const checkDigit = remainder === 0 ? 0 : 10 - remainder
-    
+
     // Step 3: Create final 14-digit GTIN
     const gtin14 = digits13 + checkDigit.toString()
-    
+
     return gtin14
   }
 
@@ -79,7 +79,7 @@ function App() {
     if (!dateStr) return ''
     const date = new Date(dateStr)
     if (isNaN(date.getTime())) return ''
-    
+
     // GS1 date format: YYMMDD
     const year = date.getFullYear().toString().slice(-2)
     const month = (date.getMonth() + 1).toString().padStart(2, '0')
@@ -87,55 +87,27 @@ function App() {
     return year + month + day
   }
 
-  const buildGS1ElementString = (gtin: string, expiryDate: string, batchLot: string, serialNumber: string): string => {
-    const GS = '\u001D' // ASCII 29 Group Separator (FNC1)
-    
-    // GS1 Application Identifiers with proper separators:
-    // 01 - GTIN (Global Trade Item Number) - 14 digits
-    // 17 - Expiration Date - YYMMDD format  
-    // 10 - Batch/Lot Number - up to 20 alphanumeric
-    // 21 - Serial Number - up to 20 alphanumeric
-    
-    let gs1Data = `1${gtin.padStart(14, '0')}`
-    
-    if (expiryDate) {
-      gs1Data += `17${expiryDate}`
-    }
-    
-    if (batchLot) {
-      gs1Data += `10${batchLot}`
-    }
-    
-    if (serialNumber) {
-      gs1Data += `${GS}21${serialNumber}`
-    }
-
-    console.log(gs1Data)
-    
-    return gs1Data
-  }
-
   const formatGS1Display = (gtin: string, expiryDate: string, batchLot: string, serialNumber: string): string => {
     let display = `(01)${gtin}`
-    
+
     if (expiryDate) {
       display += `(17)${expiryDate}`
     }
-    
+
     if (batchLot) {
       display += `(10)${batchLot}`
     }
-    
+
     if (serialNumber) {
       display += `(21)${serialNumber}`
     }
-    
+
     return display
   }
 
   const generateBarcodes = async () => {
-    if (!rx || !ndc || !lotNumber || !serialNumber || !expirationDate) {
-      alert('Please fill in all fields')
+    if (!rx || !ndc) {
+      alert('Please fill in Rx and NDC fields')
       return
     }
 
@@ -153,17 +125,16 @@ function App() {
 
     // Generate GS1 Data Matrix using URL API
     const gtin = ndcToGtin(ndc)
-    const formattedDate = formatGS1Date(expirationDate)
-    
+    const formattedDate = expirationDate ? formatGS1Date(expirationDate) : ''
+
     // Build GS1 display format for URL
-    const gs1Display = formatGS1Display(gtin, formattedDate, lotNumber, serialNumber)
-    
+    const gs1Display = formatGS1Display(gtin, formattedDate, lotNumber || '', serialNumber || '')
+
     // Create Data Matrix URL
-    const encodedText = encodeURIComponent(gs1Display)
     const dataMatrixApiUrl = `https://bwipjs-api.metafloor.com/?bcid=gs1datamatrix&text=${gs1Display}`
-    
+
     setDataMatrixUrl(dataMatrixApiUrl)
-    
+
     // Update the display text
     const displayElement = document.getElementById('gs1-display')
     if (displayElement) {
@@ -174,13 +145,13 @@ function App() {
   return (
     <div>
       <h1>Barcode Generator</h1>
-      
+
       <div>
         <div><input type="text" placeholder="Rx" value={rx} onChange={(e) => setRx(e.target.value)} /></div>
         <div><input type="text" placeholder="NDC (10 digits)" value={ndc} onChange={(e) => setNdc(e.target.value)} /></div>
-        <div><input type="text" placeholder="Lot Number" value={lotNumber} onChange={(e) => setLotNumber(e.target.value)} /></div>
-        <div><input type="text" placeholder="Serial Number" value={serialNumber} onChange={(e) => setSerialNumber(e.target.value)} /></div>
-        <div><input type="date" placeholder="Expiration Date" value={expirationDate} onChange={(e) => setExpirationDate(e.target.value)} /></div>
+        <div><input type="text" placeholder="Lot Number (optional)" value={lotNumber} onChange={(e) => setLotNumber(e.target.value)} /></div>
+        <div><input type="text" placeholder="Serial Number (optional)" value={serialNumber} onChange={(e) => setSerialNumber(e.target.value)} /></div>
+        <div><input type="date" placeholder="Expiration Date (optional)" value={expirationDate} onChange={(e) => setExpirationDate(e.target.value)} /></div>
         <button onClick={generateBarcodes}>Generate</button>
       </div>
 
