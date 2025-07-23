@@ -1,9 +1,9 @@
-# fly.toml app configuration file generated for barcode-generator-empty-haze-6135 on 2025-07-22T14:57:07-04:00
+# fly.toml app configuration file generated for pharm-barcode on 2025-07-23T10:29:40-04:00
 #
 # See https://fly.io/docs/reference/configuration/ for information about how to use this file.
 #
 
-app = 'barcode-generator-empty-haze-6135'
+app = 'pharm-barcode'
 primary_region = 'iad'
 
 [build]
@@ -20,6 +20,4 @@ primary_region = 'iad'
   processes = ['app']
 
 [[vm]]
-  memory = '256mb'
-  cpu_kind = 'shared'
-  cpus = 1
+  size = 'shared-cpu-1x'
